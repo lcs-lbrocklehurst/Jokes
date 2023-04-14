@@ -8,6 +8,11 @@
 import SwiftUI
 
 struct JokesView: View {
+    
+    //MARK: stored properties
+    @State var punchlineOpacity = 0.0
+    
+    //MARK: computed properties
     var body: some View {
         
         NavigationView {
@@ -17,7 +22,7 @@ struct JokesView: View {
                     .multilineTextAlignment(.center)
                 
                 Button( action: {
-                    
+                    punchlineOpacity = 1.0
                 }, label: {
                     Image (systemName: "arrow.down.circle.fill")
                         .resizable()
@@ -26,6 +31,10 @@ struct JokesView: View {
                         .tint(.black)
                 })
                 
+                Text("they are hill areas")
+                    .font(.title)
+                    .multilineTextAlignment(.center)
+                    .opacity(punchlineOpacity)
             }
             .navigationTitle("Random Jokes")
         }
