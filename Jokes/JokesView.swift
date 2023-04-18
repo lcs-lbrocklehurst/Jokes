@@ -5,11 +5,16 @@
 //  Created by Lewis Brocklehurst on 2023-04-14.
 //
 
+import Blackbird
 import SwiftUI
 
 struct JokesView: View {
     
     //MARK: stored properties
+    
+    
+    //Acess the connection to the database (needed to add a new record)
+    @Environment(\.blackbirdDatabase) var db: Blackbird.Database?
     
     //0.0 is invisible, 1.0 is visible
     @State var punchlineOpacity = 0.0
@@ -19,9 +24,10 @@ struct JokesView: View {
     
     //MARK: computed properties
     var body: some View {
-        
         NavigationView {
-            VStack {
+            
+            
+            VStack(spacing: 20) {
 
                 Spacer()
                 
@@ -74,8 +80,27 @@ struct JokesView: View {
                 .disabled(punchlineOpacity == 0.0 ? true : false)
                 .buttonStyle(.borderedProminent)
                 
+                Button(action: {
+                    
+                    Task {
+                        //write to the database
+                        if let currentJoke = currentJoke {
+                            try await db!.transaction { core in
+                                try core.query("INSERT INTO joke (id, type, setup, punchline) VALUES ( ?, ?, ?, ?)",
+                                               currentJoke.id,
+                                               currentJoke.type,
+                                               currentJoke.setup,
+                                               currentJoke.punchline)
+                            }
+                        }
+                    }
+                }, label: {
+                    Text("Save For Later")
+                })
+                .buttonStyle(.borderedProminent)
                 
-            }
+                
+                        }
             .navigationTitle("Random Jokes")
         }
         //create an asynchronus task to be performed as this view appears
@@ -89,6 +114,8 @@ struct JokesView: View {
     struct JokesView_Previews: PreviewProvider {
         static var previews: some View {
             JokesView()
+            //make the database available to this view in Xcode Previews
+                    .environment(\.blackbirdDatabase,AppDatabase.instance )
         }
     }
 
